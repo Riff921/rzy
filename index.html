@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabungan Saya</title>
+  <script src="/_sdk/element_sdk.js"></script><!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tabungan Saya"><!-- PWA Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="https://iili.io/K4B3jcv.jpg">
+  <link rel="apple-touch-icon" href="https://iili.io/K4B3jcv.jpg"><!-- PWA Manifest -->
+  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlRhYnVuZ2FuIFNheWEiLAogICJzaG9ydF9uYW1lIjogIlRhYnVuZ2FuIiwKICAiZGVzY3JpcHRpb24iOiAiQXBsaWthc2kgdGFidW5nYW4gc2VkZXJoYW5hIGRhbiBtdWRhaCBkaWd1bmFrYW4iLAogICJzdGFydF91cmwiOiAiLyIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgInRoZW1lX2NvbG9yIjogIiMxMGI5ODEiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiNmMGZkZjQiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2lpbGkuaW8vSzRCM2pjdi5qcGciLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL2pwZWciCiAgICB9LAogICAgewogICAgICAic3JjIjogImh0dHBzOi8vaWlsaS5pby9LNEIzamN2LmpwZyIsCiAgICAgICJzaXplcyI6ICI1MTJ4NTEyIiwKICAgICAgInR5cGUiOiAiaW1hZ2UvanBlZyIKICAgIH0KICBdCn0=">
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .pin-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="bg-green-50 min-h-full">
+  <div class="max-w-md mx-auto bg-white min-h-full shadow-lg"><!-- PIN Setup/Login Screen -->
+   <div id="pin-screen" class="h-full flex flex-col justify-between p-4 sm:p-6"><!-- Header Section -->
+    <div class="flex-1 flex flex-col justify-center">
+     <div class="text-center mb-4 sm:mb-6">
+      <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4 bg-green-100 rounded-full flex items-center justify-center overflow-hidden"><img src="https://iili.io/K4B3jcv.jpg" alt="Logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+       <div class="text-2xl sm:text-3xl hidden">
+        🏦
+       </div>
+      </div>
+      <h1 class="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">Tabungan Saya</h1>
+      <p id="pin-subtitle" class="text-sm text-gray-600">Buat PIN 6 digit untuk keamanan</p>
+     </div><!-- PIN Input Display -->
+     <div class="flex justify-center space-x-2 sm:space-x-3 mb-4 sm:mb-6" id="pin-dots">
+      <div id="pin-dot-1" class="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-gray-300 transition-all duration-200"></div>
+      <div id="pin-dot-2" class="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-gray-300 transition-all duration-200"></div>
+      <div id="pin-dot-3" class="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-gray-300 transition-all duration-200"></div>
+      <div id="pin-dot-4" class="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-gray-300 transition-all duration-200"></div>
+      <div id="pin-dot-5" class="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-gray-300 transition-all duration-200"></div>
+      <div id="pin-dot-6" class="w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-gray-300 transition-all duration-200"></div>
+     </div>
+     <div id="pin-error" class="text-red-500 text-center text-sm mb-2 hidden"></div>
+    </div><!-- Keypad Section -->
+    <div class="flex-shrink-0">
+     <div class="grid grid-cols-3 gap-3 sm:gap-4 max-w-xs mx-auto mb-4"><button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="1">1</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="2">2</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="3">3</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="4">4</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="5">5</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="6">6</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="7">7</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="8">8</button> <button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="9">9</button>
+      <div></div><button class="pin-btn aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl font-semibold transition-all duration-150 min-h-[50px] sm:min-h-[60px]" data-digit="0">0</button> <button id="pin-delete" class="aspect-square bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-full text-lg sm:text-xl transition-all duration-150 flex items-center justify-center min-h-[50px] sm:min-h-[60px]">⌫</button>
+     </div>
+     <div id="reset-pin-section" class="text-center hidden"><button id="reset-pin-btn" class="text-blue-500 hover:text-blue-700 text-sm transition-colors">Lupa PIN? Reset PIN</button>
+     </div>
+    </div>
+   </div><!-- Main App (Hidden initially) -->
+   <div id="main-app" class="hidden"><!-- Header -->
+    <header class="bg-green-600 text-white p-6 text-center relative"><button id="logout-btn" class="absolute top-4 right-4 text-green-100 hover:text-white transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+      </svg></button>
+     <h1 id="app-title" class="text-2xl font-bold">Tabungan Saya</h1>
+     <div class="mt-4">
+      <p class="text-green-100 text-sm">Total Tabungan</p>
+      <p id="total-balance" class="text-3xl font-bold">Rp 0</p>
+     </div>
+    </header><!-- Add Money Form -->
+    <div class="p-6 border-b border-gray-200">
+     <form id="add-money-form" class="space-y-4">
+      <div><label for="amount" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Uang</label> <input type="text" id="amount" name="amount" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg" placeholder="0" inputmode="numeric">
+      </div>
+      <div><label for="description" class="block text-sm font-medium text-gray-700 mb-2">Keterangan (Opsional)</label> <input type="text" id="description" name="description" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Contoh: Uang saku, bonus, dll">
+      </div><button type="submit" id="add-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"> <span id="add-btn-text">💰 Tambah ke Tabungan</span> </button>
+     </form>
+    </div><!-- Statistics -->
+    <div class="p-6 border-b border-gray-200">
+     <div class="grid grid-cols-2 gap-4">
+      <div class="text-center p-4 bg-green-50 rounded-lg">
+       <p class="text-sm text-gray-600">Total Setoran</p>
+       <p id="total-deposits" class="text-xl font-bold text-green-600">0</p>
+      </div>
+      <div class="text-center p-4 bg-blue-50 rounded-lg">
+       <p class="text-sm text-gray-600">Jumlah</p>
+       <p id="total-amount" class="text-xl font-bold text-blue-600">Rp 0</p>
+      </div>
+     </div>
+    </div><!-- Transaction History -->
+    <div class="p-6">
+     <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">📋 Riwayat Tabungan</h2><button id="clear-data-btn" class="text-red-500 hover:text-red-700 text-sm font-medium"> 🗑️ Hapus Semua </button>
+     </div>
+     <div id="transaction-list" class="space-y-3">
+      <div id="empty-state" class="text-center py-8 text-gray-500">
+       <div class="text-4xl mb-2">
+        🏦
+       </div>
+       <p>Belum ada tabungan</p>
+       <p class="text-sm">Mulai menabung sekarang!</p>
+      </div>
+     </div>
+    </div><!-- Install PWA Prompt -->
+    <div id="install-prompt" class="hidden fixed bottom-4 left-4 right-4 max-w-md mx-auto bg-green-600 text-white p-4 rounded-lg shadow-lg">
+     <div class="flex items-center justify-between">
+      <div class="flex-1">
+       <p class="font-semibold">Install Aplikasi</p>
+       <p class="text-sm text-green-100">Akses lebih mudah dari layar utama</p>
+      </div>
+      <div class="flex space-x-2 ml-4"><button id="install-btn" class="bg-white text-green-600 px-3 py-1 rounded text-sm font-medium">Install</button> <button id="dismiss-install" class="text-green-100 px-2">✕</button>
+      </div>
+     </div>
+    </div><!-- Clear Data Confirmation Modal -->
+    <div id="clear-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+     <div class="bg-white p-6 rounded-lg max-w-sm mx-4">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Hapus Semua Data?</h3>
+      <p class="text-gray-600 mb-6">Semua riwayat tabungan akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.</p>
+      <div class="flex space-x-3"><button id="confirm-clear" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg font-medium"> Hapus Semua </button> <button id="cancel-clear" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium"> Batal </button>
+      </div>
+     </div>
+    </div>
+   </div><!-- Reset PIN Confirmation Modal -->
+   <div id="reset-pin-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg max-w-sm mx-4">
+     <h3 class="text-lg font-semibold text-gray-800 mb-4">Reset PIN?</h3>
+     <p class="text-gray-600 mb-6">PIN akan dihapus dan Anda perlu membuat PIN baru. Data tabungan tetap aman.</p>
+     <div class="flex space-x-3"><button id="confirm-reset-pin" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg font-medium"> Reset PIN </button> <button id="cancel-reset-pin" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-lg font-medium"> Batal </button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+        // Configuration
+        const defaultConfig = {
+            app_title: "Tabungan Saya",
+            currency_symbol: "Rp"
+        };
+
+        // Global state
+        let currentData = [];
+        let recordCount = 0;
+        let deferredPrompt;
+        let isAuthenticated = false;
+        let userPIN = null;
+
+        // PIN Management
+        let currentPinInput = '';
+        let isSettingUpPin = false;
+        let confirmPin = '';
+
+        function loadPIN() {
+            const savedPIN = localStorage.getItem('tabungan-pin');
+            if (savedPIN) {
+                userPIN = savedPIN;
+                document.getElementById('pin-subtitle').textContent = 'Masukkan PIN Anda';
+                document.getElementById('reset-pin-section').classList.remove('hidden');
+                return true;
+            }
+            return false;
+        }
+
+        function savePIN(pin) {
+            localStorage.setItem('tabungan-pin', pin);
+            userPIN = pin;
+        }
+
+        function resetPIN() {
+            localStorage.removeItem('tabungan-pin');
+            userPIN = null;
+            isAuthenticated = false;
+            currentPinInput = '';
+            confirmPin = '';
+            isSettingUpPin = false;
+            document.getElementById('pin-subtitle').textContent = 'Buat PIN 6 digit untuk keamanan';
+            document.getElementById('reset-pin-section').classList.add('hidden');
+            document.getElementById('pin-screen').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+            clearPinDots();
+            showPinError('');
+        }
+
+        function updatePinDots() {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById(`pin-dot-${i}`);
+                if (i <= currentPinInput.length) {
+                    dot.classList.add('bg-green-500', 'border-green-500');
+                    dot.classList.remove('border-gray-300');
+                } else {
+                    dot.classList.remove('bg-green-500', 'border-green-500');
+                    dot.classList.add('border-gray-300');
+                }
+            }
+        }
+
+        function clearPinDots() {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById(`pin-dot-${i}`);
+                dot.classList.remove('bg-green-500', 'border-green-500');
+                dot.classList.add('border-gray-300');
+            }
+        }
+
+        function showPinError(message) {
+            const errorEl = document.getElementById('pin-error');
+            const dotsEl = document.getElementById('pin-dots');
+            
+            if (message) {
+                errorEl.textContent = message;
+                errorEl.classList.remove('hidden');
+                dotsEl.classList.add('pin-shake');
+                setTimeout(() => dotsEl.classList.remove('pin-shake'), 500);
+            } else {
+                errorEl.classList.add('hidden');
+            }
+        }
+
+        function handlePinInput(digit) {
+            if (currentPinInput.length < 6) {
+                currentPinInput += digit;
+                updatePinDots();
+                
+                if (currentPinInput.length === 6) {
+                    setTimeout(() => processPinInput(), 300);
+                }
+            }
+        }
+
+        function deletePinInput() {
+            if (currentPinInput.length > 0) {
+                currentPinInput = currentPinInput.slice(0, -1);
+                updatePinDots();
+                showPinError('');
+            }
+        }
+
+        function processPinInput() {
+            if (!userPIN) {
+                // Setting up new PIN
+                if (!isSettingUpPin) {
+                    // First PIN entry
+                    confirmPin = currentPinInput;
+                    currentPinInput = '';
+                    isSettingUpPin = true;
+                    document.getElementById('pin-subtitle').textContent = 'Konfirmasi PIN Anda';
+                    clearPinDots();
+                } else {
+                    // Confirming PIN
+                    if (currentPinInput === confirmPin) {
+                        savePIN(currentPinInput);
+                        isAuthenticated = true;
+                        showMainApp();
+                        showSuccess('PIN berhasil dibuat! 🔒');
+                    } else {
+                        showPinError('PIN tidak cocok. Coba lagi.');
+                        currentPinInput = '';
+                        confirmPin = '';
+                        isSettingUpPin = false;
+                        document.getElementById('pin-subtitle').textContent = 'Buat PIN 6 digit untuk keamanan';
+                        clearPinDots();
+                    }
+                }
+            } else {
+                // Verifying existing PIN
+                if (currentPinInput === userPIN) {
+                    isAuthenticated = true;
+                    showMainApp();
+                } else {
+                    showPinError('PIN salah. Coba lagi.');
+                    currentPinInput = '';
+                    clearPinDots();
+                }
+            }
+        }
+
+        function showMainApp() {
+            document.getElementById('pin-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            // Start auto-lock timer when entering main app
+            resetAutoLockTimer();
+        }
+
+        function logout() {
+            isAuthenticated = false;
+            currentPinInput = '';
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('pin-screen').classList.remove('hidden');
+            clearPinDots();
+            showPinError('');
+            
+            // Clear auto-lock timer when logging out
+            if (autoLockTimeout) {
+                clearTimeout(autoLockTimeout);
+                autoLockTimeout = null;
+            }
+        }
+
+        // LocalStorage functions
+        function saveToLocalStorage() {
+            localStorage.setItem('tabungan-data', JSON.stringify(currentData));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('tabungan-data');
+            if (saved) {
+                try {
+                    currentData = JSON.parse(saved);
+                    recordCount = currentData.length;
+                    updateUI();
+                } catch (error) {
+                    console.error("Error loading data:", error);
+                    currentData = [];
+                    recordCount = 0;
+                }
+            }
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem('tabungan-data');
+            currentData = [];
+            recordCount = 0;
+            updateUI();
+        }
+
+        // Element SDK implementation
+        const elementConfig = {
+            defaultConfig,
+            onConfigChange: async (config) => {
+                const appTitle = config.app_title || defaultConfig.app_title;
+                const currencySymbol = config.currency_symbol || defaultConfig.currency_symbol;
+                
+                document.getElementById('app-title').textContent = appTitle;
+                document.title = appTitle;
+                
+                // Update currency display
+                updateCurrencyDisplay(currencySymbol);
+            },
+            mapToCapabilities: (config) => ({
+                recolorables: [
+                    {
+                        get: () => config.primary_color || "#10b981",
+                        set: (value) => {
+                            config.primary_color = value;
+                            window.elementSdk.setConfig({ primary_color: value });
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            }),
+            mapToEditPanelValues: (config) => new Map([
+                ["app_title", config.app_title || defaultConfig.app_title],
+                ["currency_symbol", config.currency_symbol || defaultConfig.currency_symbol]
+            ])
+        };
+
+        // Initialize app
+        async function initializeApp() {
+            try {
+                // Initialize Element SDK
+                if (window.elementSdk) {
+                    await window.elementSdk.init(elementConfig);
+                }
+
+                // Load data from localStorage
+                loadFromLocalStorage();
+            } catch (error) {
+                console.error("Initialization error:", error);
+                showError("Terjadi kesalahan saat memuat aplikasi");
+            }
+        }
+
+        // Update currency display
+        function updateCurrencyDisplay(symbol) {
+            const totalBalance = document.getElementById('total-balance');
+            const totalAmount = document.getElementById('total-amount');
+            
+            if (totalBalance && currentData.length > 0) {
+                const total = currentData.reduce((sum, item) => sum + item.amount, 0);
+                totalBalance.textContent = formatCurrency(total, symbol);
+            } else if (totalBalance) {
+                totalBalance.textContent = formatCurrency(0, symbol);
+            }
+            
+            if (totalAmount && currentData.length > 0) {
+                const total = currentData.reduce((sum, item) => sum + item.amount, 0);
+                totalAmount.textContent = formatCurrency(total, symbol);
+            } else if (totalAmount) {
+                totalAmount.textContent = formatCurrency(0, symbol);
+            }
+            
+            // Update transaction list currency
+            const transactionItems = document.querySelectorAll('.transaction-amount');
+            transactionItems.forEach(item => {
+                const amount = parseInt(item.dataset.amount);
+                item.textContent = formatCurrency(amount, symbol);
+            });
+        }
+
+        // Format number with thousand separators (Indonesian format)
+        function formatNumber(num) {
+            if (num === 0) return "0";
+            
+            // Convert to string and add thousand separators
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+        
+        // Format currency with proper Indonesian formatting
+        function formatCurrency(amount, symbol = "Rp") {
+            if (amount === 0) return `${symbol} 0`;
+            
+            const formatted = formatNumber(Math.abs(amount));
+            return `${symbol} ${formatted}`;
+        }
+
+        // Update UI with current data
+        function updateUI() {
+            const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+            const currencySymbol = config.currency_symbol || defaultConfig.currency_symbol;
+            
+            updateBalance();
+            updateStatistics();
+            updateTransactionList();
+            
+            // Update currency display
+            updateCurrencyDisplay(currencySymbol);
+        }
+
+        // Update balance display
+        function updateBalance() {
+            const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+            const currencySymbol = config.currency_symbol || defaultConfig.currency_symbol;
+            const totalBalance = document.getElementById('total-balance');
+            
+            if (currentData.length === 0) {
+                totalBalance.textContent = formatCurrency(0, currencySymbol);
+                return;
+            }
+            
+            const total = currentData.reduce((sum, item) => sum + item.amount, 0);
+            totalBalance.textContent = formatCurrency(total, currencySymbol);
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+            const currencySymbol = config.currency_symbol || defaultConfig.currency_symbol;
+            const totalDeposits = document.getElementById('total-deposits');
+            const totalAmount = document.getElementById('total-amount');
+            
+            totalDeposits.textContent = currentData.length.toString();
+            
+            if (currentData.length === 0) {
+                totalAmount.textContent = formatCurrency(0, currencySymbol);
+                return;
+            }
+            
+            const total = currentData.reduce((sum, item) => sum + item.amount, 0);
+            totalAmount.textContent = formatCurrency(total, currencySymbol);
+        }
+
+        // Update transaction list
+        function updateTransactionList() {
+            const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+            const currencySymbol = config.currency_symbol || defaultConfig.currency_symbol;
+            const transactionList = document.getElementById('transaction-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (currentData.length === 0) {
+                emptyState.style.display = 'block';
+                // Remove existing transactions
+                const existingTransactions = transactionList.querySelectorAll('.transaction-item');
+                existingTransactions.forEach(item => item.remove());
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Sort by date (newest first)
+            const sortedData = [...currentData].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Clear and rebuild transaction list
+            const existingTransactions = transactionList.querySelectorAll('.transaction-item');
+            existingTransactions.forEach(item => item.remove());
+            
+            sortedData.forEach(transaction => {
+                const item = createTransactionItem(transaction, currencySymbol);
+                transactionList.appendChild(item);
+            });
+        }
+
+        // Create transaction item element
+        function createTransactionItem(transaction, currencySymbol) {
+            const item = document.createElement('div');
+            item.className = 'transaction-item bg-gray-50 p-4 rounded-lg slide-up';
+            item.dataset.id = transaction.id;
+            
+            const date = new Date(transaction.date);
+            const formattedDate = date.toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            item.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800">${transaction.description || 'Menabung'}</p>
+                        <p class="text-sm text-gray-500">${formattedDate}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="transaction-amount font-bold text-green-600" data-amount="${transaction.amount}">
+                            ${formatCurrency(transaction.amount, currencySymbol)}
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            return item;
+        }
+
+        // Show error message
+        function showError(message) {
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 left-4 right-4 max-w-md mx-auto bg-red-500 text-white p-4 rounded-lg shadow-lg z-50 fade-in';
+            toast.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-red-200 hover:text-white">✕</button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 left-4 right-4 max-w-md mx-auto bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 fade-in';
+            toast.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-green-200 hover:text-white">✕</button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 3000);
+        }
+
+        // Format input as user types
+        function formatInputValue(value) {
+            // Remove all non-digit characters
+            const numericValue = value.replace(/\D/g, '');
+            
+            if (numericValue === '') return '';
+            
+            // Add thousand separators
+            return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+        
+        // Parse formatted input back to number
+        function parseFormattedValue(value) {
+            return parseInt(value.replace(/\./g, '')) || 0;
+        }
+
+        // Auto-lock functionality
+        let lastActivityTime = Date.now();
+        let autoLockTimeout = null;
+        const AUTO_LOCK_DELAY = 30000; // 30 seconds of inactivity
+
+        function resetAutoLockTimer() {
+            lastActivityTime = Date.now();
+            if (autoLockTimeout) {
+                clearTimeout(autoLockTimeout);
+            }
+            
+            if (isAuthenticated) {
+                autoLockTimeout = setTimeout(() => {
+                    if (isAuthenticated) {
+                        logout();
+                        showSuccess('Aplikasi terkunci otomatis untuk keamanan 🔒');
+                    }
+                }, AUTO_LOCK_DELAY);
+            }
+        }
+
+        function setupAutoLock() {
+            // Track user activity
+            const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+            
+            activityEvents.forEach(event => {
+                document.addEventListener(event, resetAutoLockTimer, true);
+            });
+
+            // Lock when page becomes hidden (user switches tabs/apps)
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && isAuthenticated) {
+                    // Small delay to allow quick tab switches
+                    setTimeout(() => {
+                        if (document.hidden && isAuthenticated) {
+                            logout();
+                        }
+                    }, 1000);
+                }
+            });
+
+            // Lock when window loses focus (user switches to another app)
+            window.addEventListener('blur', () => {
+                if (isAuthenticated) {
+                    setTimeout(() => {
+                        if (isAuthenticated) {
+                            logout();
+                        }
+                    }, 1000);
+                }
+            });
+
+            // Reset timer when window gains focus
+            window.addEventListener('focus', () => {
+                if (isAuthenticated) {
+                    resetAutoLockTimer();
+                }
+            });
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup auto-lock functionality
+            setupAutoLock();
+
+            // PIN keypad event listeners
+            document.querySelectorAll('.pin-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const digit = btn.dataset.digit;
+                    handlePinInput(digit);
+                });
+            });
+
+            document.getElementById('pin-delete').addEventListener('click', deletePinInput);
+            
+            document.getElementById('reset-pin-btn').addEventListener('click', () => {
+                document.getElementById('reset-pin-modal').classList.remove('hidden');
+            });
+
+            document.getElementById('confirm-reset-pin').addEventListener('click', () => {
+                resetPIN();
+                document.getElementById('reset-pin-modal').classList.add('hidden');
+                showSuccess('PIN berhasil direset! 🔄');
+            });
+
+            document.getElementById('cancel-reset-pin').addEventListener('click', () => {
+                document.getElementById('reset-pin-modal').classList.add('hidden');
+            });
+
+            // Logout button
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            
+            // Add input formatting event listener
+            document.getElementById('amount').addEventListener('input', (e) => {
+                const cursorPosition = e.target.selectionStart;
+                const oldValue = e.target.value;
+                const newValue = formatInputValue(e.target.value);
+                
+                e.target.value = newValue;
+                
+                // Adjust cursor position after formatting
+                const lengthDiff = newValue.length - oldValue.length;
+                const newCursorPosition = cursorPosition + lengthDiff;
+                e.target.setSelectionRange(newCursorPosition, newCursorPosition);
+            });
+
+            // Handle form submission
+            document.getElementById('add-money-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const amount = parseFormattedValue(formData.get('amount'));
+                const description = formData.get('description').trim();
+                
+                if (!amount || amount <= 0) {
+                    showError("Jumlah uang harus lebih dari 0");
+                    return;
+                }
+                
+                // Create transaction object
+                const transaction = {
+                    id: Date.now().toString(),
+                    amount: amount,
+                    description: description || 'Menabung',
+                    date: new Date().toISOString(),
+                    type: 'deposit'
+                };
+                
+                // Add to current data and save to localStorage
+                currentData.push(transaction);
+                recordCount = currentData.length;
+                saveToLocalStorage();
+                
+                // Update UI
+                updateUI();
+                
+                // Reset form
+                e.target.reset();
+                
+                // Show success message
+                const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+                const currencySymbol = config.currency_symbol || defaultConfig.currency_symbol;
+                showSuccess(`Berhasil menambah tabungan ${formatCurrency(amount, currencySymbol)}`);
+            });
+
+            // Clear data functionality
+            document.getElementById('clear-data-btn').addEventListener('click', () => {
+                if (currentData.length === 0) {
+                    showError("Tidak ada data untuk dihapus");
+                    return;
+                }
+                document.getElementById('clear-modal').classList.remove('hidden');
+            });
+
+            document.getElementById('confirm-clear').addEventListener('click', () => {
+                clearLocalStorage();
+                document.getElementById('clear-modal').classList.add('hidden');
+                showSuccess("Semua data berhasil dihapus");
+            });
+
+            document.getElementById('cancel-clear').addEventListener('click', () => {
+                document.getElementById('clear-modal').classList.add('hidden');
+            });
+
+            // Close modals when clicking outside
+            document.getElementById('clear-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'clear-modal') {
+                    document.getElementById('clear-modal').classList.add('hidden');
+                }
+            });
+
+            document.getElementById('reset-pin-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'reset-pin-modal') {
+                    document.getElementById('reset-pin-modal').classList.add('hidden');
+                }
+            });
+
+            // PWA Installation
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                document.getElementById('install-prompt').classList.remove('hidden');
+            });
+
+            document.getElementById('install-btn').addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    deferredPrompt = null;
+                    document.getElementById('install-prompt').classList.add('hidden');
+                }
+            });
+
+            document.getElementById('dismiss-install').addEventListener('click', () => {
+                document.getElementById('install-prompt').classList.add('hidden');
+            });
+
+            // Load PIN status and initialize app
+            loadPIN();
+            initializeApp();
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'tabungan-v1';
+                    const urlsToCache = [
+                        '/',
+                        'https://cdn.tailwindcss.com'
+                    ];
+
+                    self.addEventListener('install', (event) => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then((cache) => cache.addAll(urlsToCache))
+                        );
+                    });
+
+                    self.addEventListener('fetch', (event) => {
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then((response) => {
+                                    if (response) {
+                                        return response;
+                                    }
+                                    return fetch(event.request);
+                                })
+                        );
+                    });
+                `;
+                
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('Service Worker registered'))
+                    .catch(() => console.log('Service Worker registration failed'));
+            });
+        }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9949d33222a2fd02',t:'MTc2MTQ4MDM1OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
